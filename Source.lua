@@ -27,7 +27,7 @@ local Library = {
 		Foreground = Color3.fromRGB(13, 13, 13),
 
 		Text = {
-			Selected = Color3.fromRGB(170, 85, 235),
+			Selected = Color3.fromRGB(255, 255, 255),
 			Unselected = Color3.fromRGB(160, 160, 160)
 		},
 
