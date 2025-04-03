@@ -25,12 +25,12 @@ local Library = {
 		Accent = Color3.fromRGB(255, 255, 255),
 		Background = Color3.fromRGB(15, 15, 15),
 		Foreground = Color3.fromRGB(13, 13, 13),
-		LuhWindowTitle = Color3.fromRGB(255, 255, 255),
 
 		Text = {
 			Selected = Color3.fromRGB(255, 255, 255),
 			Unselected = Color3.fromRGB(160, 160, 160)
 		},
+		Title = Color3.fromRGB(255, 255, 255),
 
 		Advanced = {
 			["Tab Buttons"] = {
@@ -321,8 +321,6 @@ end
 
 --[[ CREATE UI ]]----------------------------------------------------
 local Container = Interface.Container
-local LuhWindowTitle = Container.Title
-local LuhTitleBar = LuhWindowTitle.Bar
 local TabHolder = Container.Holder
 local TabViewer = Container.Viewer
 
@@ -341,6 +339,7 @@ function Library:Window(...)
 
 	Container.Title.FontFace = Library.Theme.Font
 	Container.Title.Text = cfg.Title
+	Container.Title.TextColor3 = Library.Theme.Title
 
 	Container.Size = cfg.Size
 	Container.Position = cfg.Position
