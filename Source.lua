@@ -341,7 +341,7 @@ function Library:Window(...)
 	Container.Title.FontFace = Library.Theme.Font
 	Container.Title.Text = cfg.Title
 	Container.Title.TextColor3 = Library.Theme.Title
-	Container.Title.Bar.TextColor3 = Library.Theme.Bar
+	Container.Title.Bar.BackgroundColor3 = Library.Theme.Bar
 
 	Container.Size = cfg.Size
 	Container.Position = cfg.Position
