@@ -15,7 +15,6 @@
 --]]
 
 --[[ LIBRARY DATA ]]-------------------------------------------------
-print("niggaware")
 local Library = { 
 	Flags = {}, 
 	Selected = {},
@@ -26,6 +25,7 @@ local Library = {
 		Accent = Color3.fromRGB(255, 255, 255),
 		Background = Color3.fromRGB(15, 15, 15),
 		Foreground = Color3.fromRGB(13, 13, 13),
+		LuhWindowTitle = Color3.fromRGB(255, 255, 255),
 
 		Text = {
 			Selected = Color3.fromRGB(255, 255, 255),
@@ -321,6 +321,8 @@ end
 
 --[[ CREATE UI ]]----------------------------------------------------
 local Container = Interface.Container
+local LuhWindowTitle = Container.Title
+local LuhTitleBar = LuhWindowTitle.Bar
 local TabHolder = Container.Holder
 local TabViewer = Container.Viewer
 
