@@ -918,7 +918,7 @@ function Library:Window(...)
 					return Divider
 				end
 
-				function function Section:Dropdown(...)
+				function Section:Dropdown(...)
 				    local Dropdown, Data = {}, {
 				        Values = {},
 				        Flag = string.format("%x%x%x%x%x", os.time(), tick() * 1000000, math.random(1, 1000000000), workspace:GetServerTimeNow() * 1000000, math.random(1, 1000000000)),
