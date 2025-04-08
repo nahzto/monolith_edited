@@ -918,86 +918,128 @@ function Library:Window(...)
 					return Divider
 				end
 
-				function Section:Dropdown(...)
-					local Dropdown, Data = {}, {
-						Values = {},
-						Flag = string.format("%x%x%x%x%x", os.time(), tick() * 1000000, math.random(1, 1000000000), workspace:GetServerTimeNow() * 1000000, math.random(1, 1000000000)),
-						Name = "N/A",
-						Default = 1,
-						Multi = false,
-						Callback = function() end
-					}; local cfg = Library.Overwrite(Data, ... or {})
-					Dropdown.Open = false
-					Dropdown.Selected = nil
-
-					local DropdownFrame = Components.SectionStuff.Dropdown:Clone()
-					local DropdownOptions = DropdownFrame.Options
-
-					DropdownOptions.Parent = Interface
-					DropdownFrame.Parent = SectionFrame.Container
-					
-					DropdownOptions.Selection.FontFace = Library.Theme.Font
-					DropdownFrame.Title.FontFace = Library.Theme.Font
-					DropdownFrame.List:FindFirstChild("Selected").FontFace = Library.Theme.Font
-
-                    DropdownOptions.Size = UDim2.new(0, DropdownFrame.AbsoluteSize.X,0,0)
-                    DropdownOptions.Position = UDim2.new(0, DropdownFrame.AbsolutePosition.X, 0, DropdownFrame.AbsolutePosition.Y + DropdownFrame.AbsoluteSize.Y + 4)
-
-					function Dropdown.Hide() DropdownFrame.Visible = false; Dropdown.SetVisible(false) end
-					function Dropdown.Show() DropdownFrame.Visible = true end
-
-					function Dropdown.SetVisible(bool : boolean)
-						DropdownOptions.Visible = bool
-
-						if bool then
-							if Library.Opened and Library.Opened ~= Dropdown then
-								Library.Opened.SetVisible(false)
-								Library.Opened.Open = false
-							end
-							Library.Opened = Dropdown
-						end
-					end
-
-					for _, Option in cfg.Values do
-						if type(Option) == 'string' then
-							-- local OptionSelected = false
-							local OptionButton = DropdownOptions.Selection:Clone()
-							OptionButton.Parent = DropdownOptions
-							OptionButton.Visible = true
-							OptionButton.Text = Option
-
-							OptionButton.MouseButton1Click:Connect(function()
-								if not cfg.Multi then
-									for _, Button in ipairs(Library.GetChildrenOfClass(DropdownOptions, 'TextButton')) do
-										TweenService:Create(Button, TweenInfo.new(0.1), {TextColor3 = Color3.fromRGB(180,180,180)}):Play()
-									end
-								end
-
-								TweenService:Create(OptionButton, TweenInfo.new(0.1), {TextColor3 = Library.Theme.Text.Selected}):Play()
-								Dropdown.Selected = Option
-								DropdownFrame.List:FindFirstChild("Selected").Text = Option
-
-								cfg.Callback(Dropdown.Selected)
-								Library.Flags[cfg.Flag] = Dropdown.Selected
-							end)
-						end
-					end
-
-					DropdownFrame.List.MouseButton1Click:Connect(function()
-						Dropdown.Open = not Dropdown.Open
-						Dropdown.SetVisible(Dropdown.Open)
-					end)
-
-					Container:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
-						DropdownOptions.Position = UDim2.new(0, DropdownFrame.AbsolutePosition.X, 0, DropdownFrame.AbsolutePosition.Y + DropdownFrame.AbsoluteSize.Y + 4)
-					end)
-
-					Container:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
-						DropdownOptions.Size = UDim2.new(0, DropdownFrame.AbsoluteSize.X, 0, 0)
-					end)
-
-					for k,v in pairs(cfg) do Dropdown[k] = v end
-					return setmetatable(Dropdown, {__index = Section})
+				function function Section:Dropdown(...)
+				    local Dropdown, Data = {}, {
+				        Values = {},
+				        Flag = string.format("%x%x%x%x%x", os.time(), tick() * 1000000, math.random(1, 1000000000), workspace:GetServerTimeNow() * 1000000, math.random(1, 1000000000)),
+				        Name = "N/A",
+				        Default = 1,
+				        Multi = false, -- Add this flag for multi-select
+				        Callback = function() end
+				    }; local cfg = Library.Overwrite(Data, ... or {})
+				    Dropdown.Open = false
+				    Dropdown.Selected = cfg.Multi and {} or nil -- Store array if multi-select
+				
+				    local DropdownFrame = Components.SectionStuff.Dropdown:Clone()
+				    local DropdownOptions = DropdownFrame.Options
+				
+				    DropdownOptions.Parent = Interface
+				    DropdownFrame.Parent = SectionFrame.Container
+				    
+				    DropdownOptions.Selection.FontFace = Library.Theme.Font
+				    DropdownFrame.Title.FontFace = Library.Theme.Font
+				    DropdownFrame.List:FindFirstChild("Selected").FontFace = Library.Theme.Font
+				
+				    DropdownOptions.Size = UDim2.new(0, DropdownFrame.AbsoluteSize.X,0,0)
+				    DropdownOptions.Position = UDim2.new(0, DropdownFrame.AbsolutePosition.X, 0, DropdownFrame.AbsolutePosition.Y + DropdownFrame.AbsoluteSize.Y + 4)
+				
+				    function Dropdown.Hide() DropdownFrame.Visible = false; Dropdown.SetVisible(false) end
+				    function Dropdown.Show() DropdownFrame.Visible = true end
+				
+				    function Dropdown.SetVisible(bool : boolean)
+				        DropdownOptions.Visible = bool
+				
+				        if bool then
+				            if Library.Opened and Library.Opened ~= Dropdown then
+				                Library.Opened.SetVisible(false)
+				                Library.Opened.Open = false
+				            end
+				            Library.Opened = Dropdown
+				        end
+				    end
+				
+				    -- Function to update the selected display text
+				    local function UpdateSelectedText()
+				        if cfg.Multi then
+				            if #Dropdown.Selected > 0 then
+				                DropdownFrame.List:FindFirstChild("Selected").Text = table.concat(Dropdown.Selected, ", ")
+				            else
+				                DropdownFrame.List:FindFirstChild("Selected").Text = "None"
+				            end
+				        else
+				            DropdownFrame.List:FindFirstChild("Selected").Text = Dropdown.Selected or "None"
+				        end
+				    end
+				
+				    -- Function to handle option selection
+				    local function SelectOption(Option, OptionButton)
+				        if cfg.Multi then
+				            -- For multi-select
+				            local found = table.find(Dropdown.Selected, Option)
+				            if found then
+				                table.remove(Dropdown.Selected, found)
+				                TweenService:Create(OptionButton, TweenInfo.new(0.1), {TextColor3 = Color3.fromRGB(180,180,180)}):Play()
+				            else
+				                table.insert(Dropdown.Selected, Option)
+				                TweenService:Create(OptionButton, TweenInfo.new(0.1), {TextColor3 = Library.Theme.Text.Selected}):Play()
+				            end
+				        else
+				            -- For single select
+				            for _, Button in ipairs(Library.GetChildrenOfClass(DropdownOptions, 'TextButton')) do
+				                TweenService:Create(Button, TweenInfo.new(0.1), {TextColor3 = Color3.fromRGB(180,180,180)}):Play()
+				            end
+				            Dropdown.Selected = Option
+				            TweenService:Create(OptionButton, TweenInfo.new(0.1), {TextColor3 = Library.Theme.Text.Selected}):Play()
+				        end
+				        
+				        UpdateSelectedText()
+				        cfg.Callback(cfg.Multi and Dropdown.Selected or Dropdown.Selected)
+				        Library.Flags[cfg.Flag] = cfg.Multi and Dropdown.Selected or Dropdown.Selected
+				    end
+				
+				    -- Create option buttons
+				    for _, Option in ipairs(cfg.Values) do
+				        if type(Option) == 'string' then
+				            local OptionButton = DropdownOptions.Selection:Clone()
+				            OptionButton.Parent = DropdownOptions
+				            OptionButton.Visible = true
+				            OptionButton.Text = Option
+				
+				            -- Set initial selection if default is provided
+				            if cfg.Default then
+				                if cfg.Multi and type(cfg.Default) == "table" then
+				                    if table.find(cfg.Default, Option) then
+				                        SelectOption(Option, OptionButton)
+				                    end
+				                elseif not cfg.Multi and Option == cfg.Default then
+				                    SelectOption(Option, OptionButton)
+				                end
+				            end
+				
+				            OptionButton.MouseButton1Click:Connect(function()
+				                SelectOption(Option, OptionButton)
+				            end)
+				        end
+				    end
+				
+				    DropdownFrame.List.MouseButton1Click:Connect(function()
+				        Dropdown.Open = not Dropdown.Open
+				        Dropdown.SetVisible(Dropdown.Open)
+				    end)
+				
+				    Container:GetPropertyChangedSignal("AbsolutePosition"):Connect(function()
+				        DropdownOptions.Position = UDim2.new(0, DropdownFrame.AbsolutePosition.X, 0, DropdownFrame.AbsolutePosition.Y + DropdownFrame.AbsoluteSize.Y + 4)
+				    end)
+				
+				    Container:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+				        DropdownOptions.Size = UDim2.new(0, DropdownFrame.AbsoluteSize.X, 0, 0)
+				    end)
+				
+				    -- Initialize selected text
+				    UpdateSelectedText()
+				
+				    for k,v in pairs(cfg) do Dropdown[k] = v end
+				    return setmetatable(Dropdown, {__index = Section})
 				end
 
 				function Section:Button(...)
